@@ -1,6 +1,6 @@
 {
-    "name": "ai-web",
-    "version": "1.0.38",
+    "name": "vue3-cli",
+    "version": "1.0.0",
     "private": true,
     "type": "module",
     "scripts": {
