@@ -15,7 +15,7 @@ import router from './router'
 
 const app = createApp(App)
 
-window.document.documentElement.setAttribute('data-theme', import.meta.env?.VITE_WEB)
+window.document.documentElement.setAttribute('data-theme', import.meta.env?.VITE_THEME)
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)

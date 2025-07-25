@@ -12,6 +12,7 @@ import postCssPxToRem from 'postcss-pxtorem'
 import seoPrerender from 'vite-plugin-seo-prerender'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
+import { viteMockServe } from 'vite-plugin-mock'
 import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
@@ -76,8 +77,7 @@ export default defineConfig(({ command, mode }) => {
                             '$1 style="font-size:192px;"'
                         )
                     },
-                    routes: [
-                    ] // 需要生成的路由
+                    routes: [] // 需要生成的路由
                 }),
                 createSvgIconsPlugin({
                     // 指定需要缓存的图标文件夹
@@ -111,6 +111,31 @@ export default defineConfig(({ command, mode }) => {
             }
         }
     } else {
+        const plugins = [
+            vue(),
+            basicSsl(),
+            createSvgIconsPlugin({
+                // 指定需要缓存的图标文件夹
+                iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
+                // 指定symbolId格式
+                symbolId: '[name]'
+            }),
+            AutoImport({
+                resolvers: [ElementPlusResolver()]
+            }),
+            Components({
+                resolvers: [ElementPlusResolver()]
+            })
+        ]
+        if (mode == 'mock') {
+            plugins.push(
+                viteMockServe({
+                    mockPath: 'src/mock', // Mock文件存放目录
+                    localEnabled: true, // 开发环境启用Mock
+                    logger: true // 控制台显示请求日志
+                })
+            )
+        }
         config = {
             devServer: {
                 client: {
@@ -148,22 +173,7 @@ export default defineConfig(({ command, mode }) => {
                     ]
                 }
             },
-            plugins: [
-                vue(),
-                basicSsl(),
-                createSvgIconsPlugin({
-                    // 指定需要缓存的图标文件夹
-                    iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
-                    // 指定symbolId格式
-                    symbolId: '[name]'
-                }),
-                AutoImport({
-                    resolvers: [ElementPlusResolver()]
-                }),
-                Components({
-                    resolvers: [ElementPlusResolver()]
-                })
-            ],
+            plugins,
             resolve: {
                 alias: {
                     '@': fileURLToPath(new URL('./src', import.meta.url))

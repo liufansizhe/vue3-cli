@@ -1,4 +1,4 @@
 import { ApiService } from './apiService'
 
 //demo
-export const Demo = new ApiService('/demo')
+export const Login = new ApiService('/login')
