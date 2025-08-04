@@ -23,6 +23,11 @@ export default defineConfig(({ command, mode }) => {
             }
         },
         css: {
+            preprocessorOptions: {
+                scss: {
+                    api: 'modern-compiler'
+                }
+            },
             postcss: {
                 plugins: [
                     postCssPxToRem({
@@ -57,6 +62,7 @@ export default defineConfig(({ command, mode }) => {
     console.log('环境信息：', process.env.NODE_ENV, command, env, mode)
 
     if (process.env.NODE_ENV == 'production') {
+        //生产配置
         config = {
             base: '/',
             build: {
@@ -107,6 +113,7 @@ export default defineConfig(({ command, mode }) => {
             ...config
         }
     } else {
+        //本地配置
         if (mode == 'mock') {
             plugins.push(
                 viteMockServe({
