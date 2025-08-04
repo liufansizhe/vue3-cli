@@ -9,16 +9,51 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import fs from 'fs'
 import path from 'path'
 import postCssPxToRem from 'postcss-pxtorem'
-import seoPrerender from 'vite-plugin-seo-prerender'
 import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 import { viteMockServe } from 'vite-plugin-mock'
 import vue from '@vitejs/plugin-vue'
 
-// https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
     const env = loadEnv(mode, process.cwd())
-    let config = {}
+    let config = {
+        devServer: {
+            client: {
+                overlay: false // 编译错误时，取消全屏覆盖（建议关掉）
+            }
+        },
+        css: {
+            postcss: {
+                plugins: [
+                    postCssPxToRem({
+                        rootValue: 192,
+                        propList: ['*']
+                    })
+                ]
+            }
+        },
+        resolve: {
+            alias: {
+                '@': fileURLToPath(new URL('./src', import.meta.url))
+            }
+        }
+    }
+
+    const plugin = [
+        vue(),
+        createSvgIconsPlugin({
+            // 指定需要缓存的图标文件夹
+            iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
+            // 指定symbolId格式
+            symbolId: '[name]'
+        }),
+        AutoImport({
+            resolvers: [ElementPlusResolver()]
+        }),
+        Components({
+            resolvers: [ElementPlusResolver()]
+        })
+    ]
     console.log('环境信息：', process.env.NODE_ENV, command, env, mode)
 
     if (process.env.NODE_ENV == 'production') {
@@ -53,44 +88,8 @@ export default defineConfig(({ command, mode }) => {
                     }
                 }
             },
-            devServer: {
-                client: {
-                    overlay: false // 编译错误时，取消全屏覆盖（建议关掉）
-                }
-            },
-            css: {
-                postcss: {
-                    plugins: [
-                        postCssPxToRem({
-                            rootValue: 192,
-                            propList: ['*']
-                        })
-                    ]
-                }
-            },
             plugins: [
-                vue(),
-                seoPrerender({
-                    callback: (html, route) => {
-                        return html.replace(
-                            /(<html.*?)(style=".*?")/,
-                            '$1 style="font-size:192px;"'
-                        )
-                    },
-                    routes: [] // 需要生成的路由
-                }),
-                createSvgIconsPlugin({
-                    // 指定需要缓存的图标文件夹
-                    iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
-                    // 指定symbolId格式
-                    symbolId: '[name]'
-                }),
-                AutoImport({
-                    resolvers: [ElementPlusResolver()]
-                }),
-                Components({
-                    resolvers: [ElementPlusResolver()]
-                }),
+                ...plugin,
                 viteCompression({
                     verbose: true,
                     disable: false,
@@ -101,32 +100,13 @@ export default defineConfig(({ command, mode }) => {
                 }),
                 visualizer({ open: false })
             ],
-            resolve: {
-                alias: {
-                    '@': fileURLToPath(new URL('./src', import.meta.url))
-                }
-            },
+
             esbuild: {
                 drop: ['console', 'debugger']
-            }
+            },
+            ...config
         }
     } else {
-        const plugins = [
-            vue(),
-            basicSsl(),
-            createSvgIconsPlugin({
-                // 指定需要缓存的图标文件夹
-                iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
-                // 指定symbolId格式
-                symbolId: '[name]'
-            }),
-            AutoImport({
-                resolvers: [ElementPlusResolver()]
-            }),
-            Components({
-                resolvers: [ElementPlusResolver()]
-            })
-        ]
         if (mode == 'mock') {
             plugins.push(
                 viteMockServe({
@@ -137,11 +117,6 @@ export default defineConfig(({ command, mode }) => {
             )
         }
         config = {
-            devServer: {
-                client: {
-                    overlay: false // 编译错误时，取消全屏覆盖（建议关掉）
-                }
-            },
             server: {
                 host: '0.0.0.0',
                 port: '8080',
@@ -160,25 +135,10 @@ export default defineConfig(({ command, mode }) => {
                         secure: false
                     }
                 },
-
                 https: true
             },
-            css: {
-                postcss: {
-                    plugins: [
-                        postCssPxToRem({
-                            rootValue: 192,
-                            propList: ['*']
-                        })
-                    ]
-                }
-            },
-            plugins,
-            resolve: {
-                alias: {
-                    '@': fileURLToPath(new URL('./src', import.meta.url))
-                }
-            }
+            plugins: [...plugin, basicSsl()],
+            ...config
         }
     }
     // 如果当前时打包行为 生成最新版本号
