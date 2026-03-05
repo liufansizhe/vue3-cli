@@ -26,7 +26,6 @@ const closeHandle = () => {
     </div>
 </template>
 <style lang="scss">
-@use '@/styles/base.scss';
 .common-modal {
     height: 100%;
     width: 100%;
@@ -72,7 +71,6 @@ const closeHandle = () => {
         .el-input__wrapper {
             border-radius: 10px !important;
         }
-        @extend .form-consume;
     }
 }
 </style>

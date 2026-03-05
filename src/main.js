@@ -2,6 +2,7 @@ import 'element-plus/dist/index.css'
 import '@/styles/common.scss'
 import 'virtual:svg-icons-register'
 import 'amfe-flexible'
+import '@/styles/theme.scss'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import * as directive from '@/utils/directive'
@@ -15,17 +16,11 @@ import router from './router'
 
 const app = createApp(App)
 
-window.document.documentElement.setAttribute('data-theme', import.meta.env?.VITE_THEME)
-
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
 for (const [key, component] of Object.entries(directive)) {
     app.directive(key, component)
-}
-
-app.config.globalProperties.$changeTheme = (type) => {
-    window.document.documentElement.setAttribute('data-theme', type)
 }
 
 app.component('svg-icon', SvgIcon)

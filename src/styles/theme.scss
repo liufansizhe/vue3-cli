@@ -1,0 +1,52 @@
+// ============================================
+// 主题变量 - 单文件双主题方案
+// 结构：{ 变量名: { light: xxx, dark: xxx } }
+// 修改时亮暗色并排显示，无需滚动查找
+// ============================================
+
+// ----------------------------------------
+// 主题变量定义 - 所有颜色都在这里维护
+// ----------------------------------------
+$theme-vars: (
+    // 主色调
+    demo: (
+            light: rgb(55, 65, 81),
+            dark: rgb(200, 190, 174)
+        )
+);
+
+// ----------------------------------------
+// 复杂值定义（渐变、阴影等）
+// ----------------------------------------
+$theme-complex-vars: (
+    // 页面渐变
+    demo-complex: (
+            light: linear-gradient(180deg, #f7f1ff 0%, #ffffff 20.25%),
+            dark: linear-gradient(180deg, #1e1e1e 0%, #141414 100%)
+        )
+);
+
+// ----------------------------------------
+// Mixin: 生成 CSS 变量
+// ----------------------------------------
+@mixin generate-theme($theme-map, $theme-name) {
+    @each $key, $value-map in $theme-map {
+        --#{$key}: #{map-get($value-map, $theme-name)};
+    }
+}
+
+// ----------------------------------------
+// 生成主题 - 亮色主题（默认）
+// ----------------------------------------
+:root {
+    @include generate-theme($theme-vars, light);
+    @include generate-theme($theme-complex-vars, light);
+}
+
+// ----------------------------------------
+// 生成主题 - 暗色主题
+// ----------------------------------------
+.dark-theme {
+    @include generate-theme($theme-vars, dark);
+    @include generate-theme($theme-complex-vars, dark);
+}
