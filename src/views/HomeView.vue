@@ -1,8 +1,8 @@
 <script setup>
-import { useThemeStore } from '@/stores';
+import { useThemeStore } from '@/stores'
 import { onMounted } from 'vue'
 import { RouterView } from 'vue-router'
-const {toggleTheme}=useThemeStore()
+const { toggleTheme } = useThemeStore()
 onMounted(() => {})
 </script>
 <template>
@@ -11,7 +11,7 @@ onMounted(() => {})
     <div class="T">demo</div>
 </template>
 <style scoped lang="scss">
-.T{
-    background: var(--demo);
+.T {
+    background: var(--button-bg);
 }
 </style>
